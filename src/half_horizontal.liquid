@@ -11,7 +11,7 @@
       <section class="bc-sched">
         <div class="bc-list">
           {%- for name in prayer_names -%}
-          <div class="bc-row {{ states[forloop.index0] }}{% if name == 'Sunrise' %} sun{% endif %}"><span class="bc-n">{{ labels[forloop.index0] }}</span><span class="bc-t">{{ prayer_times[forloop.index0] }}</span></div>
+          <div class="bc-row {{ states[forloop.index0] }}"><span class="bc-n">{{ labels[forloop.index0] }}</span><span class="bc-t">{{ prayer_times[forloop.index0] }}</span></div>
           {%- endfor -%}
         </div>
       </section>
