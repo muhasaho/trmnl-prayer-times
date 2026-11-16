@@ -24,6 +24,12 @@ custom_fields:
   field_type: lat_lon
   name: Location
   description: Search for a city or postal code, or enter a comma-separated latitude and longitude.
+- keyname: location_name
+  field_type: string
+  name: Location name
+  description: Shown in the title bar, for example Edmonton. TRMNL's location search only saves coordinates, so type the name here.
+  placeholder: Edmonton
+  optional: true
 - keyname: method
   field_type: select
   name: Calculation method

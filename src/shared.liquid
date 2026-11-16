@@ -2,7 +2,10 @@
   Shared logic for every layout. TRMNL prepends this to each layout's markup.
   Input: `data` is the AlAdhan /v1/timings response polled by the plugin.
   Output: prayer_names, prayer_times (display strings), next_index, next_prayer,
-  date, last_refreshed, has_data.
+  next_time, found (false after Isha), minutes_until, countdown_text, states
+  (past/next/up per prayer), labels (Dhuhr shows as Jumuʿah on Fridays), date,
+  weekday, location_name, last_refreshed, has_data. Styles for every layout are
+  at the end of this file.
 {%- endcomment -%}
 {%- assign has_data = false -%}
 {%- if data.timings.Fajr -%}{%- assign has_data = true -%}{%- endif -%}
@@ -32,8 +35,10 @@
   {%- assign h = hh | plus: 0 -%}
   {%- assign m = t | split: ":" | last -%}
   {%- assign mins = h | times: 60 | plus: m -%}
+  {%- if forloop.first -%}{%- assign first_mins = mins -%}{%- endif -%}
   {%- if found == false and mins > now_min -%}
     {%- assign next_index = forloop.index0 -%}
+    {%- assign next_mins = mins -%}
     {%- assign found = true -%}
   {%- endif -%}
   {%- if time_format == "24" -%}
@@ -49,3 +54,145 @@
 {%- assign prayer_times = display | split: "|" -%}
 {%- assign next_prayer = prayer_names[next_index] -%}
 {%- assign prayer_letters = "F,S,D,A,M,I" | split: "," -%}
+
+{%- comment -%} Time until the next prayer; after Isha it counts to tomorrow's Fajr (approximated by today's). {%- endcomment -%}
+{%- if found -%}
+  {%- assign minutes_until = next_mins | minus: now_min -%}
+{%- else -%}
+  {%- assign minutes_until = first_mins | plus: 1440 | minus: now_min -%}
+{%- endif -%}
+{%- assign until_h = minutes_until | divided_by: 60 | floor -%}
+{%- assign until_m = minutes_until | modulo: 60 -%}
+{%- if until_h > 0 -%}
+  {%- capture countdown -%}{{ until_h }}h {{ until_m }}m{%- endcapture -%}
+{%- else -%}
+  {%- capture countdown -%}{{ until_m }}m{%- endcapture -%}
+{%- endif -%}
+{%- assign next_time = prayer_times[next_index] -%}
+{%- assign weekday = data.date.gregorian.weekday.en -%}
+{%- capture hijri_date -%}{{ data.date.hijri.day | plus: 0 }} {{ data.date.hijri.month.en }} {{ data.date.hijri.year }}{%- endcapture -%}
+
+{%- comment -%} Mockup extras: per-prayer state, split times, minutes, labels. {%- endcomment -%}
+{%- assign states = "" -%}
+{%- assign nums = "" -%}
+{%- assign suffixes = "" -%}
+{%- assign mins_list = "" -%}
+{%- assign labels = "" -%}
+{%- for name in prayer_names -%}
+  {%- assign t = data.timings[name] | split: " " | first -%}
+  {%- assign h = t | split: ":" | first | plus: 0 -%}
+  {%- assign mm = t | split: ":" | last | plus: 0 -%}
+  {%- assign mins = h | times: 60 | plus: mm -%}
+  {%- assign mins_list = mins_list | append: mins | append: "," -%}
+  {%- if found and forloop.index0 == next_index -%}{%- assign st = "next" -%}
+  {%- elsif found == false or forloop.index0 < next_index -%}{%- assign st = "past" -%}
+  {%- else -%}{%- assign st = "up" -%}{%- endif -%}
+  {%- assign states = states | append: st | append: "," -%}
+  {%- assign shown = prayer_times[forloop.index0] -%}
+  {%- assign num = shown | split: " " | first -%}
+  {%- assign nums = nums | append: num | append: "," -%}
+  {%- assign parts = shown | split: " " -%}
+  {%- if parts.size > 1 -%}{%- assign sfx = parts.last -%}{%- else -%}{%- assign sfx = "" -%}{%- endif -%}
+  {%- assign suffixes = suffixes | append: sfx | append: "," -%}
+  {%- assign label = name -%}
+  {%- if name == "Dhuhr" and weekday == "Friday" -%}{%- assign label = "Jumuʿah" -%}{%- endif -%}
+  {%- assign labels = labels | append: label | append: "," -%}
+{%- endfor -%}
+{%- assign states = states | split: "," -%}
+{%- assign nums = nums | split: "," -%}
+{%- assign suffixes = suffixes | split: "," -%}
+{%- assign mins_list = mins_list | split: "," -%}
+{%- assign labels = labels | split: "," -%}
+{%- assign next_label = labels[next_index] -%}
+{%- assign next_num = nums[next_index] -%}
+{%- assign next_sfx = suffixes[next_index] -%}
+{%- if minutes_until < 60 -%}
+  {%- capture countdown_text -%}in {{ minutes_until }} min{%- endcapture -%}
+{%- else -%}
+  {%- capture countdown_text -%}in {{ until_h }} h {{ until_m }} min{%- endcapture -%}
+{%- endif -%}
+{%- assign after_index = next_index | plus: 1 -%}
+{%- if after_index > 5 -%}{%- assign after_index = 0 -%}{%- endif -%}
+{%- assign hijri_months = "Muharram,Safar,Rabīʿ I,Rabīʿ II,Jumādā I,Jumādā II,Rajab,Shaʿbān,Ramaḍān,Shawwāl,Dhū al-Qaʿdah,Dhū al-Ḥijjah" | split: "," -%}
+{%- assign hijri_mi = data.date.hijri.month.number | minus: 1 -%}
+{%- capture hijri_short -%}{{ data.date.hijri.day | plus: 0 }} {{ hijri_months[hijri_mi] }} {{ data.date.hijri.year }}{%- endcapture -%}
+{%- assign location_name = trmnl.plugin_settings.custom_fields_values.location_name | strip -%}
+<style>
+  .bc { --ink:#000; --paper:#fff; font-family:"Inter Variable",Inter,sans-serif; color:var(--ink); width:100%; height:100%; display:flex; flex-direction:column; }
+  .bc-px { font-family:"NicoClean","Inter Variable",sans-serif; -webkit-font-smoothing:none; font-size:16px; letter-spacing:.04em; font-weight:400; }
+  .bc-dateline { display:flex; justify-content:space-between; align-items:baseline; }
+  .bc-body { flex:1; min-height:0; display:flex; gap:30px; align-items:stretch; }
+
+  /* The panel: next prayer, inverted */
+  .bc-panel { position:relative; flex:0 0 50%; background:var(--ink); color:var(--paper); border-radius:6px; padding:28px 32px; display:flex; flex-direction:column; justify-content:center; }
+  .bc-pointer { position:absolute; right:-15px; width:0; height:0; border-left:15px solid var(--ink); border-top:13px solid transparent; border-bottom:13px solid transparent; transform:translateY(-50%); }
+  .bc-eyebrow { text-transform:uppercase; letter-spacing:.14em; }
+  .bc-name { font-size:60px; font-weight:700; line-height:1; margin-top:18px; }
+  .bc-time { display:flex; align-items:baseline; gap:8px; line-height:1; margin-top:4px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .bc-time .num { margin-left:-.055em; }
+  .bc-time .num { font-size:112px; font-weight:650; letter-spacing:-.035em; }
+  .bc-time .sfx { font-size:30px; font-weight:650; }
+  .bc-when { display:flex; align-items:center; gap:10px; margin-top:16px; }
+  .bc-chip { padding:3px 10px 4px; border:2px solid var(--paper); border-radius:999px; }
+
+  /* Schedule */
+  .bc-sched { flex:1; min-width:0; display:flex; flex-direction:column; }
+  .bc-heading { text-transform:uppercase; letter-spacing:.14em; padding-bottom:10px; border-bottom:3px solid var(--ink); }
+  .bc-list { flex:1; display:flex; flex-direction:column; border-top:2px solid var(--ink); border-bottom:2px solid var(--ink); }
+  .bc-row { flex:1; display:flex; justify-content:space-between; align-items:center; gap:8px; padding:0 2px; border-bottom:1px solid var(--ink); font-size:26px; line-height:1; }
+  .bc-row:last-child { border-bottom:0; }
+  .bc-t { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .bc-row.past { font-weight:400; }
+  .bc-row.up { font-weight:550; }
+  .bc-row.next { font-weight:800; }
+  .bc-row.sun { font-size:22px; }
+  .bc-short, .bc-eb-short { display:none; }
+  .view--quadrant .bc-eb-long { display:none; }
+
+  /* Half horizontal: panel left, schedule in two columns */
+  .view--half_horizontal .bc { gap:0; }
+  .view--half_horizontal .bc-dateline, .view--half_horizontal .bc-heading, .view--half_horizontal .bc-asof { display:none; }
+  .view--half_horizontal .bc-body { gap:22px; }
+  .view--half_horizontal .bc-panel { flex-basis:45%; padding:14px 22px; }
+  .view--half_horizontal .bc-eyebrow { letter-spacing:.08em; white-space:nowrap; }
+  .view--half_horizontal .bc-list { column-gap:20px; }
+  .view--half_horizontal .bc-name { font-size:34px; margin-top:8px; }
+  .view--half_horizontal .bc-time .num { font-size:60px; }
+  .view--half_horizontal .bc-time .sfx { font-size:20px; }
+  .view--half_horizontal .bc-when { margin-top:8px; }
+  .view--half_horizontal .bc-list { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(3,1fr); grid-auto-flow:column; column-gap:24px; border:0; background:linear-gradient(var(--ink),var(--ink)) top/100% 2px no-repeat, linear-gradient(var(--ink),var(--ink)) bottom/100% 2px no-repeat; }
+  .view--half_horizontal .bc-pointer { display:none; }
+  .view--half_horizontal .bc-row { font-size:20px; padding:0 2px; }
+  .view--half_horizontal .bc-row:nth-child(3) { border-bottom:0; }
+  .view--half_horizontal .bc-row.sun { font-size:18px; }
+
+  /* Half vertical: panel on top, schedule below */
+  .view--half_vertical .bc { gap:10px; }
+  .view--half_vertical .bc-heading, .view--half_vertical .bc-dateline { display:none; }
+  .view--half_vertical .bc-body { flex-direction:column; gap:8px; }
+  .view--half_vertical .bc-panel { flex:none; padding:14px 20px 16px; }
+  .view--half_vertical .bc-name { font-size:34px; margin-top:8px; }
+  .view--half_vertical .bc-time .num { font-size:64px; }
+  .view--half_vertical .bc-time .sfx { font-size:22px; }
+  .view--half_vertical .bc-when { margin-top:8px; }
+  .view--half_vertical .bc-row { font-size:21px; padding:0 2px; }
+  .view--half_vertical .bc-pointer { display:none; }
+  .view--half_vertical .bc-row.sun { font-size:18px; }
+  .view--half_vertical .bc-asof { display:none; }
+
+  /* Quadrant: panel left, compact schedule right */
+  .view--quadrant .bc { gap:0; }
+  .view--quadrant .bc-dateline, .view--quadrant .bc-heading, .view--quadrant .bc-asof { display:none; }
+  .view--quadrant .bc-body { gap:16px; }
+  .view--quadrant .bc-panel { flex-basis:46%; padding:10px 14px; }
+  .view--quadrant .bc-eyebrow { letter-spacing:.08em; }
+  .view--quadrant .bc-name { font-size:26px; margin-top:6px; }
+  .view--quadrant .bc-time .num { font-size:48px; }
+  .view--quadrant .bc-time .sfx { font-size:16px; }
+  .view--quadrant .bc-when { margin-top:6px; }
+  .view--quadrant .bc-row { font-size:15px; padding:0 1px; }
+  .view--quadrant .bc-pointer { right:-9px; border-left-width:9px; border-top-width:8px; border-bottom-width:8px; }
+  .view--quadrant .bc-row.sun { font-size:14px; }
+  .view--half_vertical .bc-long, .view--quadrant .bc-long { display:none; }
+  .view--half_vertical .bc-short, .view--quadrant .bc-short { display:inline; }
+</style>

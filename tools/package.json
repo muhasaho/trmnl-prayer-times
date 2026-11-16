@@ -1,0 +1,9 @@
+{
+  "name": "trmnl-prayer-times-tools",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "liquidjs": "^10.21.0",
+    "playwright-core": "^1.56.0"
+  }
+}

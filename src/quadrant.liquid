@@ -1,31 +1,28 @@
-<div class="layout layout--col gap" style="width:100%;align-items:center;justify-content:flex-start;padding-top:4px;">
+<div class="layout">
   {%- if has_data -%}
-  <div class="list" style="width:100%;gap:4px;box-sizing:border-box;">
-    {%- for name in prayer_names -%}
-    {%- assign is_next = false -%}
-    {%- if forloop.index0 == next_index -%}{%- assign is_next = true -%}{%- endif -%}
-    <div class="item {% if is_next %}item--emphasis-3{% endif %}" style="align-items:center;line-height:1;">
-      <div class="meta" style="width:18px;min-height:22px;">
-        <span class="index">{{ prayer_letters[forloop.index0] }}</span>
-      </div>
-      {%- if forloop.last -%}
-      <div class="content grow" style="display:flex;flex-direction:row;justify-content:space-between;align-items:baseline;gap:18px;width:100%;line-height:1;overflow:visible;">
-      {%- else -%}
-      <div class="content grow border--h-1" style="display:flex;flex-direction:row;justify-content:space-between;align-items:baseline;gap:18px;width:100%;line-height:1;overflow:visible;padding-bottom:3px;--border-1-h-color:transparent;--border-1-h-image:repeating-linear-gradient(to right,{% if is_next %}#555{% else %}#d8d8d8{% endif %} 0 3px,transparent 3px 7px);--border-1-h-size:auto 1px;">
-      {%- endif -%}
-        <span class="label" style="font-size:15px;line-height:1.1;{% if is_next %}font-weight:600;{% endif %}">{{ name }}</span>
-        <span class="value" style="font-size:17px;line-height:1.1;font-weight:{% if is_next %}600{% else %}425{% endif %};">{{ prayer_times[forloop.index0] }}</span>
-      </div>
+  <div class="bc">
+    <div class="bc-body">
+      <section class="bc-panel">
+        <span class="bc-eyebrow bc-px"><span class="bc-eb-long">{% if found %}Next prayer{% else %}Tomorrow{% endif %} · </span>{{ countdown_text }}</span>
+        <span class="bc-name">{{ next_label }}</span>
+        {%- if found -%}{%- assign ptr = next_index | times: 2 | plus: 1 | times: 100.0 | divided_by: 12 -%}<span class="bc-pointer" style="top:{{ ptr }}%;"></span>{%- endif %}
+        <span class="bc-time"><span class="num">{{ next_num }}</span>{% if next_sfx != "" %}<span class="sfx">{{ next_sfx }}</span>{% endif %}</span>
+      </section>
+      <section class="bc-sched">
+        <div class="bc-list">
+          {%- for name in prayer_names -%}
+          <div class="bc-row {{ states[forloop.index0] }}{% if name == 'Sunrise' %} sun{% endif %}"><span class="bc-n">{{ labels[forloop.index0] }}</span><span class="bc-t">{{ prayer_times[forloop.index0] }}</span></div>
+          {%- endfor -%}
+        </div>
+      </section>
     </div>
-    {%- endfor -%}
   </div>
   {%- else -%}
   <span class="title">Prayer times unavailable</span>
   <span class="description">Check the Location setting.</span>
   {%- endif -%}
 </div>
-
 <div class="title_bar">
-  <span class="title">Prayer Times</span>
-  <span class="instance">{{ last_refreshed }}</span>
+  <span class="title">Salah Times</span>
+  <span class="instance"><span class="bc-long">{% if location_name != "" %}{{ location_name }} · {% endif %}{{ weekday }} {{ date }} · Updated {{ last_refreshed }}</span><span class="bc-short">{% if location_name != "" %}{{ location_name }} · {% endif %}{{ last_refreshed }}</span></span>
 </div>
