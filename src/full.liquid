@@ -23,6 +23,7 @@
   {%- endif -%}
 </div>
 <div class="title_bar">
+  <img class="image" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+CiAgPHBhdGggZD0iTTMwMCA5NmExNjggMTY4IDAgMSAwIDExNiAyODhBMTQwIDE0MCAwIDEgMSAzMDAgOTZ6IiBmaWxsPSIjMDAwMDAwIi8+CiAgPHBhdGggZD0iTTM1MiAxNjhsMTMgMzdoMzlsLTMyIDIzIDEyIDM3LTMyLTIzLTMyIDIzIDEyLTM3LTMyLTIzaDM5eiIgZmlsbD0iIzAwMDAwMCIvPgo8L3N2Zz4K" alt="">
   <span class="title">Salah Times</span>
   <span class="instance"><span class="bc-long">{% if location_name != "" %}{{ location_name }} · {% endif %}{{ weekday }} {{ date }} · Updated {{ last_refreshed }}</span><span class="bc-mid">{% if location_name != "" %}{{ location_name }} · {% endif %}{{ date }} · {{ last_refreshed }}</span><span class="bc-short">{% if location_name != "" %}{{ location_name }} · {% endif %}{{ last_refreshed }}</span><span class="bc-tiny">{% if location_name != "" %}{{ location_name }}{% else %}{{ last_refreshed }}{% endif %}</span></span>
 </div>
