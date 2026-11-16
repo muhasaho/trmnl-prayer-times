@@ -1,6 +1,7 @@
 // Render TRMNL layouts locally with TRMNL's framework CSS and screenshot them.
 //
 // Usage: node tools/render.mjs <dir> [--time HH:MM] [--format 12|24] [--location NAME] [--data aladhan.json]
+//                               [--device og|x] [--portrait]
 //
 // <dir> holds any of full.liquid, half_horizontal.liquid, half_vertical.liquid,
 // quadrant.liquid, and optionally shared.liquid (defaults to src/shared.liquid).
@@ -22,6 +23,11 @@ const opt = (name, def) => { const i = args.indexOf('--' + name); return i >= 0 
 const time = opt('time', '12:45');
 const format = opt('format', '12');
 const utcOffset = Number(opt('offset', '-21600'));
+const device = opt('device', 'og');
+const portrait = args.includes('--portrait');
+const [W0, H0] = device === 'x' ? [1040, 780] : [800, 480];
+const [SW, SH] = portrait ? [H0, W0] : [W0, H0];
+const screenClass = ['screen', device === 'x' ? 'screen--lg screen--4bit' : 'screen--md screen--1bit', portrait ? 'screen--portrait' : ''].join(' ').trim();
 
 const LAYOUTS = {
   full: { view: 'view--full', mashup: null },
@@ -61,7 +67,7 @@ const browser = await chromium.connectOverCDP('http://127.0.0.1:9333');
 const context = browser.contexts()[0];
 const page = await context.newPage();
 await page.bringToFront();
-await page.setViewportSize({ width: 800, height: 480 });
+await page.setViewportSize({ width: SW, height: SH });
 
 const shots = [];
 for (const [name, { view, mashup }] of Object.entries(LAYOUTS)) {
@@ -70,20 +76,20 @@ for (const [name, { view, mashup }] of Object.entries(LAYOUTS)) {
   const markup = await engine.parseAndRender(shared + fs.readFileSync(file, 'utf8'), ctx);
   let inner = `<div class="view ${view}">${markup}</div>`;
   if (mashup) inner = `<div class="mashup ${mashup}">${inner}</div>`;
-  const html = `${head}<body class="environment trmnl"><div class="trmnl environment"><div class="screen">${inner}</div></div></body></html>`;
+  const html = `${head}<body class="environment trmnl"><div class="trmnl environment"><div class="${screenClass}">${inner}</div></div></body></html>`;
   fs.writeFileSync(path.join(outDir, name + '.html'), html);
   await page.setContent(html, { waitUntil: 'networkidle' });
   await page.waitForTimeout(400);
   const png = path.join(outDir, name + '.png');
-  await page.screenshot({ path: png, clip: { x: 0, y: 0, width: 800, height: 480 } });
+  await page.screenshot({ path: png, clip: { x: 0, y: 0, width: SW, height: SH } });
   shots.push([name, png]);
 }
 
 // Contact sheet: all layouts in a 2x2 grid with labels.
 const cells = shots.map(([name, png]) => `<figure><img src="data:image/png;base64,${fs.readFileSync(png).toString('base64')}"><figcaption>${name}</figcaption></figure>`).join('');
-await page.setViewportSize({ width: 1680, height: 1100 });
-await page.setContent(`<html><body style="margin:0;padding:20px;background:#ddd;font:16px system-ui;display:grid;grid-template-columns:800px 800px;gap:20px">
-<style>figure{margin:0}img{display:block;width:800px;height:480px;box-shadow:0 0 0 1px #999}figcaption{padding:6px 0;color:#333}</style>${cells}</body></html>`);
+await page.setViewportSize({ width: SW * 2 + 60, height: 1100 });
+await page.setContent(`<html><body style="margin:0;padding:20px;background:#ddd;font:16px system-ui;display:grid;grid-template-columns:${SW}px ${SW}px;gap:20px">
+<style>figure{margin:0}img{display:block;width:${SW}px;height:${SH}px;box-shadow:0 0 0 1px #999}figcaption{padding:6px 0;color:#333}</style>${cells}</body></html>`);
 await page.screenshot({ path: path.join(outDir, 'sheet.png'), fullPage: true });
 await page.close();
 await browser.close().catch(() => {});

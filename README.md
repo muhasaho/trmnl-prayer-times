@@ -23,7 +23,7 @@ Set your TRMNL account time zone (Account → Preferences) to the time zone of t
 - On Fridays, Dhuhr is labelled Jumuʿah.
 - The title bar shows the location, date and the time of the last refresh. TRMNL refreshes at most every 15 minutes, so the countdown can be up to 15 minutes old.
 
-Everything is pure black and white for 1-bit e-ink.
+Everything is pure black and white for 1-bit e-ink. Each layout works in landscape and portrait, and sizes scale up on the TRMNL X.
 
 ## Layouts
 
@@ -57,10 +57,10 @@ https://api.aladhan.com/v1/timings/{today}?latitude=…&longitude=…&method=…
 
 ```bash
 cd tools && npm install && cd ..
-NODE_PATH=tools/node_modules node tools/render.mjs src --time 21:30 --format 24 --location Edmonton
+NODE_PATH=tools/node_modules node tools/render.mjs src --time 21:30 --format 24 --location Edmonton --portrait
 ```
 
-It writes `src/out/<layout>.png` and a contact sheet `src/out/sheet.png`. `--data` takes another AlAdhan response; the default is [tools/sample-aladhan.json](tools/sample-aladhan.json). Its output matches TRMNL's own preview except that TRMNL dithers the title bar's gray.
+It writes `src/out/<layout>.png` and a contact sheet `src/out/sheet.png`. `--data` takes another AlAdhan response; the default is [tools/sample-aladhan.json](tools/sample-aladhan.json). `--portrait` renders the OG in portrait. Its output matches TRMNL's own preview for the OG; check the TRMNL X in TRMNL's markup editor, since the renderer doesn't reproduce that screen.
 
 ## Making Changes
 

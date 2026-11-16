@@ -24,5 +24,5 @@
 </div>
 <div class="title_bar">
   <span class="title">Salah Times</span>
-  <span class="instance"><span class="bc-long">{% if location_name != "" %}{{ location_name }} · {% endif %}{{ weekday }} {{ date }} · Updated {{ last_refreshed }}</span><span class="bc-short">{% if location_name != "" %}{{ location_name }} · {% endif %}{{ last_refreshed }}</span></span>
+  <span class="instance"><span class="bc-long">{% if location_name != "" %}{{ location_name }} · {% endif %}{{ weekday }} {{ date }} · Updated {{ last_refreshed }}</span><span class="bc-mid">{% if location_name != "" %}{{ location_name }} · {% endif %}{{ date }} · {{ last_refreshed }}</span><span class="bc-short">{% if location_name != "" %}{{ location_name }} · {% endif %}{{ last_refreshed }}</span><span class="bc-tiny">{% if location_name != "" %}{{ location_name }}{% else %}{{ last_refreshed }}{% endif %}</span></span>
 </div>
