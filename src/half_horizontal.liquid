@@ -1,0 +1,19 @@
+<div class="layout" style="width:100%;align-items:stretch;justify-content:space-between;gap:8px;">
+  {%- if has_data -%}
+  {%- for name in prayer_names -%}
+  {%- assign is_next = false -%}
+  {%- if forloop.index0 == next_index -%}{%- assign is_next = true -%}{%- endif -%}
+  <div style="flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px 0;border-radius:10px;{% if is_next %}border:2px solid #000;{% else %}border:2px dashed #d8d8d8;{% endif %}">
+    <span class="label" style="font-size:18px;line-height:1.1;{% if is_next %}font-weight:600;{% endif %}">{{ name }}</span>
+    <span class="value" style="font-size:22px;line-height:1.1;white-space:nowrap;font-weight:{% if is_next %}600{% else %}425{% endif %};">{{ prayer_times[forloop.index0] }}</span>
+  </div>
+  {%- endfor -%}
+  {%- else -%}
+  <span class="title">Prayer times unavailable</span>
+  {%- endif -%}
+</div>
+
+<div class="title_bar">
+  <span class="title">Prayer Times</span>
+  <span class="instance">{{ date }} • {{ last_refreshed }}</span>
+</div>

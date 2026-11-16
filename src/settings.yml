@@ -1,0 +1,73 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+framework_version: 3.4.6
+serverless_language: ''
+refresh_interval_floor: '15'
+polling_url: 'https://api.aladhan.com/v1/timings/{{ "now" | date: "%s" | plus: trmnl.user.utc_offset | date: "%d-%m-%Y" }}?latitude={{ lat_lon | split: "," | first | strip }}&longitude={{ lat_lon | split: "," | last | strip }}&method={{ method }}&school={{ school }}&timezonestring={{ trmnl.user.time_zone_iana }}'
+polling_headers: ''
+polling_body: ''
+id: 542980
+oauth_enabled: 'false'
+oauth_pkce_enabled: 'no'
+custom_fields:
+- keyname: about
+  name: About This Plugin
+  category: life
+  field_type: author_bio
+  description: Today's five daily prayers and sunrise for your location, with the next prayer highlighted. Prayer times come from the free AlAdhan API (aladhan.com). Set your TRMNL account time zone to the one where this location is, so the date and the next prayer are correct.
+  github_url: https://github.com/muhasaho/trmnl-prayer-times
+- keyname: lat_lon
+  field_type: lat_lon
+  name: Location
+  description: Search for a city or postal code, or enter a comma-separated latitude and longitude.
+- keyname: method
+  field_type: select
+  name: Calculation method
+  description: The authority whose angles are used to calculate Fajr and Isha.
+  options:
+  - Muslim World League: '3'
+  - Islamic Society of North America (ISNA): '2'
+  - Umm Al-Qura University, Makkah: '4'
+  - Egyptian General Authority of Survey: '5'
+  - University of Islamic Sciences, Karachi: '1'
+  - Gulf Region: '8'
+  - Kuwait: '9'
+  - Qatar: '10'
+  - Dubai: '16'
+  - Majlis Ugama Islam Singapura, Singapore: '11'
+  - Jabatan Kemajuan Islam Malaysia (JAKIM): '17'
+  - Kementerian Agama Republik Indonesia: '20'
+  - Diyanet İşleri Başkanlığı, Turkey: '13'
+  - Union Organization Islamic de France: '12'
+  - Spiritual Administration of Muslims of Russia: '14'
+  - Moonsighting Committee Worldwide: '15'
+  - Institute of Geophysics, University of Tehran: '7'
+  - Shia Ithna-Ashari, Leva Institute, Qum: '0'
+  - Tunisia: '18'
+  - Algeria: '19'
+  - Morocco: '21'
+  - Comunidade Islamica de Lisboa: '22'
+  - Ministry of Awqaf, Jordan: '23'
+  default: '3'
+- keyname: school
+  field_type: select
+  name: Asr method
+  description: Hanafi Asr is later than the standard (Shafi'i, Maliki, Hanbali) Asr.
+  options:
+  - Standard (Shafi'i, Maliki, Hanbali): '0'
+  - Hanafi: '1'
+  default: '0'
+- keyname: time_format
+  field_type: select
+  name: Time format
+  options:
+  - 12-hour (1:19 PM): '12'
+  - 24-hour (13:19): '24'
+  default: '12'
+name: Salah Times
+description: Prayer times, next one highlighted
+refresh_interval: 15

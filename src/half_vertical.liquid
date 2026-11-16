@@ -1,0 +1,31 @@
+<div class="layout layout--col gap" style="width:100%;align-items:center;justify-content:flex-start;padding-top:4px;">
+  {%- if has_data -%}
+  <div class="list" style="width:100%;gap:18px;box-sizing:border-box;">
+    {%- for name in prayer_names -%}
+    {%- assign is_next = false -%}
+    {%- if forloop.index0 == next_index -%}{%- assign is_next = true -%}{%- endif -%}
+    <div class="item {% if is_next %}item--emphasis-3{% endif %}" style="align-items:center;line-height:1;">
+      <div class="meta" style="width:18px;min-height:38px;">
+        <span class="index">{{ prayer_letters[forloop.index0] }}</span>
+      </div>
+      {%- if forloop.last -%}
+      <div class="content grow" style="display:flex;flex-direction:row;justify-content:space-between;align-items:baseline;gap:18px;width:100%;line-height:1;overflow:visible;">
+      {%- else -%}
+      <div class="content grow border--h-1" style="display:flex;flex-direction:row;justify-content:space-between;align-items:baseline;gap:18px;width:100%;line-height:1;overflow:visible;padding-bottom:8px;--border-1-h-color:transparent;--border-1-h-image:repeating-linear-gradient(to right,{% if is_next %}#555{% else %}#d8d8d8{% endif %} 0 3px,transparent 3px 7px);--border-1-h-size:auto 1px;">
+      {%- endif -%}
+        <span class="label" style="font-size:20px;line-height:1.1;{% if is_next %}font-weight:600;{% endif %}">{{ name }}</span>
+        <span class="value" style="font-size:23px;line-height:1.1;font-weight:{% if is_next %}600{% else %}425{% endif %};">{{ prayer_times[forloop.index0] }}</span>
+      </div>
+    </div>
+    {%- endfor -%}
+  </div>
+  {%- else -%}
+  <span class="title">Prayer times unavailable</span>
+  <span class="description">Check the Location setting.</span>
+  {%- endif -%}
+</div>
+
+<div class="title_bar">
+  <span class="title">Prayer Times</span>
+  <span class="instance">{{ date }}</span>
+</div>
