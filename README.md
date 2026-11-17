@@ -36,10 +36,12 @@ Everything is pure black and white for 1-bit e-ink. Each layout works in landsca
 On each refresh TRMNL requests:
 
 ```
-https://api.aladhan.com/v1/timings/{today}?latitude=…&longitude=…&method=…&school=…&timezonestring={account time zone}
+https://api.aladhan.com/v1/timings/{today}?latitude=…&longitude=…&method=…&school=…&timezonestring={account time zone}&tune=0,0,0,0,0,0,0,0,{HHMM}
 ```
 
-`{today}` is computed in Liquid from `"now"` plus `trmnl.user.utc_offset`. The response is available to the markup as `data`.
+`{today}` and `{HHMM}` are computed in Liquid from `"now"` plus `trmnl.user.utc_offset`. The response is available to the markup as `data`.
+
+TRMNL skips rendering when the polled data hasn't changed, and AlAdhan returns the same response all day, so without help the countdown and next prayer would freeze after the first render. The `tune` value shifts only Midnight, which the plugin doesn't show, by the current local time, so each refresh returns different data and the screen re-renders.
 
 [src/shared.liquid](src/shared.liquid) runs before every layout. It works out the local time, picks the first prayer later than now (wrapping to Fajr after Isha), formats the times, and holds the styles for all layouts. The layout files in [src](src) are identical markup; CSS keyed on TRMNL's `view--<layout>` classes arranges each one.
 

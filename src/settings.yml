@@ -7,7 +7,7 @@ polling_verb: get
 framework_version: 3.4.6
 serverless_language: ''
 refresh_interval_floor: '15'
-polling_url: 'https://api.aladhan.com/v1/timings/{{ "now" | date: "%s" | plus: trmnl.user.utc_offset | date: "%d-%m-%Y" }}?latitude={{ lat_lon | split: "," | first | strip }}&longitude={{ lat_lon | split: "," | last | strip }}&method={{ method }}&school={{ school }}&timezonestring={{ trmnl.user.time_zone_iana }}'
+polling_url: 'https://api.aladhan.com/v1/timings/{{ "now" | date: "%s" | plus: trmnl.user.utc_offset | date: "%d-%m-%Y" }}?latitude={{ lat_lon | split: "," | first | strip }}&longitude={{ lat_lon | split: "," | last | strip }}&method={{ method }}&school={{ school }}&timezonestring={{ trmnl.user.time_zone_iana }}&tune=0,0,0,0,0,0,0,0,{{ "now" | date: "%s" | plus: trmnl.user.utc_offset | date: "%H%M" }}'
 polling_headers: ''
 polling_body: ''
 id: 542980
